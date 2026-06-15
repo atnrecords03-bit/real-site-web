@@ -1848,25 +1848,29 @@
   </div>
 
   <script>
-    // ─── BIO SYSTEM (shared via Lovable Cloud) ─────────────────────
-    const BIOS_ENDPOINT = '/api/public/bios';
+    // ─── BIO SYSTEM (JSONBin.io) ────────────────────────────────────
+    const JSONBIN_ID  = '6a30869bf5f4af5e29f825b3';
+    const JSONBIN_KEY = '$2a$10$VsuhypQZbxeCuBuSCl6fhenQ2dWfVadeFVuumshg9rUuWnDitRUum';
+    const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+    // Mot de passe pour modifier les bios (modifiable ici)
+    const BIO_PASSWORD = 'atn2024';
 
-    const overlay     = document.getElementById('bio-overlay');
-    const bioClose    = document.getElementById('bio-close');
-    const bioRole     = document.getElementById('bio-role');
-    const bioName     = document.getElementById('bio-name');
-    const bioTitle    = document.getElementById('bio-title');
-    const bioText     = document.getElementById('bio-text');
-    const bioDate     = document.getElementById('bio-date');
-    const bioEditBtn  = document.getElementById('bio-edit-btn');
-    const bioPwArea   = document.getElementById('bio-pw-area');
-    const bioPwInput  = document.getElementById('bio-pw-input');
-    const bioPwError  = document.getElementById('bio-pw-error');
+    const overlay      = document.getElementById('bio-overlay');
+    const bioClose     = document.getElementById('bio-close');
+    const bioRole      = document.getElementById('bio-role');
+    const bioName      = document.getElementById('bio-name');
+    const bioTitle     = document.getElementById('bio-title');
+    const bioText      = document.getElementById('bio-text');
+    const bioDate      = document.getElementById('bio-date');
+    const bioEditBtn   = document.getElementById('bio-edit-btn');
+    const bioPwArea    = document.getElementById('bio-pw-area');
+    const bioPwInput   = document.getElementById('bio-pw-input');
+    const bioPwError   = document.getElementById('bio-pw-error');
     const bioPwConfirm = document.getElementById('bio-pw-confirm');
     const bioPwCancel  = document.getElementById('bio-pw-cancel');
-    const bioEditArea = document.getElementById('bio-edit-area');
-    const bioTextarea = document.getElementById('bio-textarea');
-    const bioSaveBtn  = document.getElementById('bio-save-btn');
+    const bioEditArea  = document.getElementById('bio-edit-area');
+    const bioTextarea  = document.getElementById('bio-textarea');
+    const bioSaveBtn   = document.getElementById('bio-save-btn');
     const bioCancelBtn = document.getElementById('bio-cancel-btn');
 
     let currentKey = null;
@@ -1875,11 +1879,28 @@
 
     async function loadBios() {
       try {
-        const res = await fetch(BIOS_ENDPOINT, { cache: 'no-store' });
-        if (res.ok) biosCache = await res.json();
+        const res = await fetch(JSONBIN_URL + '/latest', {
+          headers: { 'X-Master-Key': JSONBIN_KEY }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          biosCache = data.record.bios || {};
+        }
       } catch (e) { console.error('Bios load failed', e); }
     }
     loadBios();
+
+    async function saveBios() {
+      const res = await fetch(JSONBIN_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_KEY
+        },
+        body: JSON.stringify({ bios: biosCache })
+      });
+      if (!res.ok) throw new Error('Save failed');
+    }
 
     function renderBioText(text) {
       if (!text) return '<span style="color:rgba(240,237,232,0.2);font-style:italic;">Biographie à venir.</span>';
@@ -1905,7 +1926,6 @@
       bioText.innerHTML    = renderBioText(biosCache[currentKey] || '');
       resetPanelState();
       overlay.classList.add('open');
-      // refresh in background
       await loadBios();
       bioText.innerHTML = renderBioText(biosCache[currentKey] || '');
     }
@@ -1923,10 +1943,15 @@
       bioPwInput.focus();
     });
 
-    // Password is now verified server-side at save time
     bioPwConfirm.addEventListener('click', () => {
       const pw = bioPwInput.value;
       if (!pw) { bioPwInput.focus(); return; }
+      if (pw !== BIO_PASSWORD) {
+        bioPwError.style.display = 'block';
+        bioPwInput.value = '';
+        bioPwInput.focus();
+        return;
+      }
       currentPassword = pw;
       bioPwArea.style.display   = 'none';
       bioPwError.style.display  = 'none';
@@ -1944,31 +1969,15 @@
       const originalLabel = bioSaveBtn.textContent;
       bioSaveBtn.textContent = 'ENREGISTREMENT...';
       try {
-        const res = await fetch(BIOS_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: currentKey, content, password: currentPassword }),
-        });
-        if (res.status === 401) {
-          bioEditArea.style.display = 'none';
-          bioEditBtn.style.display  = 'none';
-          bioPwArea.style.display   = 'block';
-          bioPwError.style.display  = 'block';
-          bioPwInput.value = '';
-          bioPwInput.focus();
-          return;
-        }
-        if (!res.ok) {
-          alert("Erreur lors de l'enregistrement.");
-          return;
-        }
         biosCache[currentKey] = content;
+        await saveBios();
         bioText.innerHTML = renderBioText(content);
         bioEditArea.style.display = 'none';
         bioEditBtn.style.display  = 'block';
         currentPassword = null;
       } catch (e) {
         alert("Erreur réseau.");
+        delete biosCache[currentKey];
       } finally {
         bioSaveBtn.disabled = false;
         bioSaveBtn.textContent = originalLabel;
