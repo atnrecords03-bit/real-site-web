@@ -1820,25 +1820,29 @@
         </li>
       </ul>
     </div>
-    <div class="submit-form reveal">
+    <form class="submit-form reveal" action="https://formsubmit.co/atnrecords03@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="Nouvelle démo — ATN RECORDS">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="text" name="_honey" style="display:none">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">ARTIST NAME</label>
-          <input class="form-input" type="text" placeholder="YOUR NAME">
+          <input class="form-input" type="text" name="Artist name" placeholder="YOUR NAME" required>
         </div>
         <div class="form-group">
           <label class="form-label">ORIGIN</label>
-          <input class="form-input" type="text" placeholder="CITY, COUNTRY">
+          <input class="form-input" type="text" name="Origin" placeholder="CITY, COUNTRY" required>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">EMAIL</label>
-        <input class="form-input" type="email" placeholder="DEMO@ARTIST.COM">
+        <input class="form-input" type="email" name="Email" placeholder="DEMO@ARTIST.COM" required>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">GENRE</label>
-          <select class="form-select">
+          <select class="form-select" name="Genre">
             <option>Brazilian Funk</option>
             <option>Phonk</option>
             <option>Hoodtrap</option>
@@ -1848,19 +1852,19 @@
         </div>
         <div class="form-group">
           <label class="form-label">TRACK COUNT</label>
-          <input class="form-input" type="number" value="2" min="1" max="4">
+          <input class="form-input" type="number" name="Track count" value="2" min="1" max="4">
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">PRIVATE LINK</label>
-        <input class="form-input" type="url" placeholder="HTTPS://SOUNDCLOUD.COM/...">
+        <input class="form-input" type="url" name="Private link" placeholder="HTTPS://SOUNDCLOUD.COM/..." required>
       </div>
       <div class="form-group">
         <label class="form-label">NOTE — 280 CHARS</label>
-        <textarea class="form-textarea" placeholder="WHERE DO THESE TRACKS COME FROM?"></textarea>
+        <textarea class="form-textarea" name="Note" maxlength="280" placeholder="WHERE DO THESE TRACKS COME FROM?"></textarea>
       </div>
-      <button class="form-btn">TRANSMIT</button>
-    </div>
+      <button class="form-btn" type="submit">TRANSMIT</button>
+    </form>
   </section>
 
   <!-- FOOTER -->
