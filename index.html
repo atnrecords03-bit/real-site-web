@@ -1992,23 +1992,6 @@
       <hr id="bio-divider">
       <div id="bio-text"></div>
       <div id="bio-date"></div>
-      <button class="bio-btn-edit" id="bio-edit-btn">✎ MODIFIER LA BIOGRAPHIE</button>
-      <div id="bio-pw-area" style="display:none;">
-        <input id="bio-pw-input" type="password" placeholder="MOT DE PASSE..." autocomplete="off"
-          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(74,127,212,0.3);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:12px;outline:none;margin-top:14px;">
-        <div id="bio-pw-error" style="display:none;font-size:9px;letter-spacing:0.2em;color:rgba(255,80,80,0.7);margin-top:8px;">MOT DE PASSE INCORRECT</div>
-        <div class="bio-actions">
-          <button class="bio-btn bio-btn-save" id="bio-pw-confirm">CONFIRMER</button>
-          <button class="bio-btn bio-btn-cancel" id="bio-pw-cancel">ANNULER</button>
-        </div>
-      </div>
-      <div id="bio-edit-area" style="display:none;">
-        <textarea id="bio-textarea" placeholder="Écris ici la biographie de ce membre..."></textarea>
-        <div class="bio-actions">
-          <button class="bio-btn bio-btn-save" id="bio-save-btn">ENREGISTRER</button>
-          <button class="bio-btn bio-btn-cancel" id="bio-cancel-btn">ANNULER</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -2017,8 +2000,6 @@
     const JSONBIN_ID  = '6a30869bf5f4af5e29f825b3';
     const JSONBIN_KEY = '$2a$10$VsuhypQZbxeCuBuSCl6fhenQ2dWfVadeFVuumshg9rUuWnDitRUum';
     const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
-    // Mot de passe pour modifier les bios (modifiable ici)
-    const BIO_PASSWORD = 'idkwhyifeelthatabtalyssazey070225';
 
     const overlay      = document.getElementById('bio-overlay');
     const bioClose     = document.getElementById('bio-close');
@@ -2027,19 +2008,8 @@
     const bioTitle     = document.getElementById('bio-title');
     const bioText      = document.getElementById('bio-text');
     const bioDate      = document.getElementById('bio-date');
-    const bioEditBtn   = document.getElementById('bio-edit-btn');
-    const bioPwArea    = document.getElementById('bio-pw-area');
-    const bioPwInput   = document.getElementById('bio-pw-input');
-    const bioPwError   = document.getElementById('bio-pw-error');
-    const bioPwConfirm = document.getElementById('bio-pw-confirm');
-    const bioPwCancel  = document.getElementById('bio-pw-cancel');
-    const bioEditArea  = document.getElementById('bio-edit-area');
-    const bioTextarea  = document.getElementById('bio-textarea');
-    const bioSaveBtn   = document.getElementById('bio-save-btn');
-    const bioCancelBtn = document.getElementById('bio-cancel-btn');
 
     let currentKey = null;
-    let currentPassword = null;
     let biosCache = {};
 
     async function loadBios() {
@@ -2071,13 +2041,18 @@
       if (!text) return '<span style="color:rgba(240,237,232,0.2);font-style:italic;">Biographie à venir.</span>';
       return text.replace(/\n/g, '<br>');
     }
+
+    const HARDCODED_BIOS = {
+      "DJ RFX3": "Founder & Owner of ATN RECORDS, I give everything to make it blow up and for becoming one of the greatest brazilian funk label of the world!",
+      "MR PATATE": "Years of friendship with DJ RFX3, he helped DJ RFX3 to migrate everything to the old deal (The Orchard : 15/02/2025- 02/03/2026). He always help and he appears also in Automotivo da Sequencia Intercelestial 8.0."
+    };
+
+    function getBioText(key) {
+      return HARDCODED_BIOS[key] || biosCache[key] || '';
+    }
+
     function resetPanelState() {
-      bioPwArea.style.display   = 'none';
-      bioEditArea.style.display = 'none';
-      bioEditBtn.style.display  = 'block';
-      bioPwError.style.display  = 'none';
-      bioPwInput.value = '';
-      currentPassword = null;
+      overlay.classList.remove('open');
     }
 
     async function openBio(card) {
@@ -2088,11 +2063,11 @@
       const rawDate = card.dataset.date || '';
       const tenure = formatTenure(rawDate);
       bioDate.textContent  = rawDate + (tenure ? ` (${tenure})` : '');
-      bioText.innerHTML    = renderBioText(biosCache[currentKey] || '');
+      bioText.innerHTML    = renderBioText(getBioText(currentKey));
       resetPanelState();
       overlay.classList.add('open');
       await loadBios();
-      bioText.innerHTML = renderBioText(biosCache[currentKey] || '');
+      bioText.innerHTML = renderBioText(getBioText(currentKey));
     }
 
     document.querySelectorAll('.member-card').forEach(card => {
@@ -2102,58 +2077,10 @@
     bioClose.addEventListener('click', () => { overlay.classList.remove('open'); resetPanelState(); });
     overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.classList.remove('open'); resetPanelState(); } });
 
-    bioEditBtn.addEventListener('click', () => {
-      bioEditBtn.style.display = 'none';
-      bioPwArea.style.display  = 'block';
-      bioPwInput.focus();
-    });
 
-    bioPwConfirm.addEventListener('click', () => {
-      const pw = bioPwInput.value;
-      if (!pw) { bioPwInput.focus(); return; }
-      if (pw !== BIO_PASSWORD) {
-        bioPwError.style.display = 'block';
-        bioPwInput.value = '';
-        bioPwInput.focus();
-        return;
-      }
-      currentPassword = pw;
-      bioPwArea.style.display   = 'none';
-      bioPwError.style.display  = 'none';
-      bioTextarea.value = biosCache[currentKey] || '';
-      bioEditArea.style.display = 'block';
-      bioTextarea.focus();
-    });
 
-    bioPwInput.addEventListener('keydown', e => { if (e.key === 'Enter') bioPwConfirm.click(); });
-    bioPwCancel.addEventListener('click', () => { resetPanelState(); });
 
-    bioSaveBtn.addEventListener('click', async () => {
-      const content = bioTextarea.value.trim();
-      bioSaveBtn.disabled = true;
-      const originalLabel = bioSaveBtn.textContent;
-      bioSaveBtn.textContent = 'ENREGISTREMENT...';
-      try {
-        biosCache[currentKey] = content;
-        await saveBios();
-        bioText.innerHTML = renderBioText(content);
-        bioEditArea.style.display = 'none';
-        bioEditBtn.style.display  = 'block';
-        currentPassword = null;
-      } catch (e) {
-        alert("Erreur réseau.");
-        delete biosCache[currentKey];
-      } finally {
-        bioSaveBtn.disabled = false;
-        bioSaveBtn.textContent = originalLabel;
-      }
-    });
 
-    bioCancelBtn.addEventListener('click', () => {
-      bioEditArea.style.display = 'none';
-      bioEditBtn.style.display  = 'block';
-      currentPassword = null;
-    });
 
     // ─── Calcul de l'ancienneté (style Wikipedia) ──────────────────
     function parseFrDate(str) {
