@@ -347,12 +347,6 @@
       width: min(90vw, 720px);
       height: min(70vh, 520px);
       perspective: 1200px;
-      cursor: grab;
-      touch-action: none;
-    }
-
-    .hero-scene.dragging {
-      cursor: grabbing;
     }
 
     .hero-rotate {
@@ -365,10 +359,6 @@
       transform: rotateX(-14deg) rotateY(22deg) rotateZ(1deg);
       transition: transform 0.08s linear;
       will-change: transform;
-    }
-
-    .hero-scene.dragging .hero-rotate {
-      transition: none;
     }
 
     .hero-frame-wrap {
@@ -1830,51 +1820,9 @@
       face.style.textShadow = shadows.join(', ');
     });
 
-    // Hero drag rotation
-    const heroScene = document.getElementById('heroScene');
+    // Hero drag rotation disabled to prevent logo movement
     const heroRotate = document.getElementById('heroRotate');
-    let rotX = -14, rotY = 22;
-    let dragging = false, lastX = 0, lastY = 0;
-
-    function applyHeroTransform() {
-      heroRotate.style.transform =
-        `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(1deg)`;
-    }
-
-    function startDrag(x, y) {
-      dragging = true;
-      lastX = x;
-      lastY = y;
-      heroScene.classList.add('dragging');
-    }
-
-    function moveDrag(x, y) {
-      if (!dragging) return;
-      rotY += (x - lastX) * 0.4;
-      rotX -= (y - lastY) * 0.25;
-      rotX = Math.max(-40, Math.min(10, rotX));
-      lastX = x;
-      lastY = y;
-      applyHeroTransform();
-    }
-
-    function endDrag() {
-      dragging = false;
-      heroScene.classList.remove('dragging');
-    }
-
-    heroScene.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
-    window.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
-    window.addEventListener('mouseup', endDrag);
-    heroScene.addEventListener('touchstart', e => {
-      startDrag(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    window.addEventListener('touchmove', e => {
-      moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    window.addEventListener('touchend', endDrag);
-
-    applyHeroTransform();
+    heroRotate.style.transform = 'rotateX(-14deg) rotateY(22deg) rotateZ(1deg)';
 
     // Cursor
     const cursor = document.getElementById('cursor');
