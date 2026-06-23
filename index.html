@@ -152,16 +152,28 @@
     }
 
     .side-socials a {
-      font-size: 9px;
+      font-size: 28px;
       letter-spacing: 0.15em;
-      color: rgba(240, 237, 232, 0.3);
+      color: rgba(240, 237, 232, 0.7);
       text-decoration: none;
       writing-mode: horizontal-lr;
-      transition: color 0.2s;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 1px solid rgba(74, 127, 212, 0.4);
+      background: rgba(74, 127, 212, 0.05);
     }
 
     .side-socials a:hover {
       color: var(--accent);
+      background: rgba(74, 127, 212, 0.2);
+      border-color: var(--accent);
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(74, 127, 212, 0.4);
     }
 
     /* SIDE LABEL */
@@ -1442,7 +1454,7 @@
   <div class="side-socials">
     <a href="https://www.tiktok.com/@atnrecordss" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
     <a href="https://www.instagram.com/atnrecords" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-    <a href="https://open.spotify.com/playlist/15qaCZrIVjsOm2G3yXaM9z?si=7f57a1ff6cf24c4f" target="_blank" title="Spotify Discography"><i class="fab fa-spotifydiscography"></i></a>
+    <a href="https://open.spotify.com/playlist/15qaCZrIVjsOm2G3yXaM9z?si=7f57a1ff6cf24c4f" target="_blank" title="Spotify"><i class="fab fa-spotify"></i></a>
   </div>
 
   <!-- PLAYER -->
